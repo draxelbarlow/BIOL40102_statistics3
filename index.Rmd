@@ -1,0 +1,246 @@
+---
+title       : "Non-Parametric Tests for Differences"
+subtitle    : "BIOL40102: Research Methods and Bioethics"
+author      : Dr Axel Barlow
+job         : "email: axel.barlow@ntu.ac.uk"
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : zenburn      # {zenburn, tomorrow, solarized-dark, ...}
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {selfcontained, standalone, draft}
+knit        : slidify::knit2slides
+logo        : ntu-shield.png
+biglogo     : NTU_open-graph.png
+assets      : {assets: ../../assets}
+license     : by-nc-sa
+github:
+  user: draxelbarlow
+  repo: BIOL40102_statistics3
+  branch: "gh-pages"
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(gganimate)
+library(RColorBrewer)
+library(knitr)
+library(DiagrammeR)
+library(palmerpenguins)
+```
+
+<!-- adding bold and italic options -->
+<style>
+em {
+  font-style: italic
+}
+strong {
+  font-weight: bold;
+}
+</style>
+
+## In this lecture...
+
+  >- Selecting the appropriate test
+  >- Mann-Whitney U Test
+  >- Generating and presenting histograms
+  >- Computing and presenting statistical tests
+
+--- .class #id
+
+## Chi-squared tests
+
+- Can be used for counts of categorical variables
+
+### Chi-squared test of frequencies
+
+- Test if the observed frequencies differ from the expected
+- Useful in situations where we can predict frequencies under a particular set or rules or processes
+
+### Chi-squared test of independence
+
+- Test if the observed frequencies between two groups are different
+- Expected frequencies can be unknown
+
+--- .class #id
+
+## What about quantitative and ordinal variables?
+
+- Continuous and ordinal variables provide a quantification
+- We may want to know if different groups differ in size or magnitude
+
+### Continuous variable, normal distribution
+
+- Parametric tests
+- E.g. normally distributed data, 2 groups: t-test (week 32)
+
+### Continuous variable, unknown or complex distribution
+
+- Non-parametric test
+
+### Ordinal variable
+
+- Non-parametric test
+
+--- .class #id 
+
+## Non-parametric vs. parametric tests
+
+- Make fewer assumptions on the underlying data
+- Can be a "safer" option if some aspects of the data are unknown
+- Lower statistical power (higher false negative rate)
+
+### Used when a parametric test is not appropriate
+
+--- .class #id 
+
+## How does it work?
+
+- Not parametric tests tend to be based on ranks
+- Example: how fast can students and professors carry out an experiment?
+
+
+Student
+
+`10 10 20 21 27 45`
+
+Professor
+
+`15 16 32 33 35 37`
+
+--- .class #id 
+
+## How does it work?
+
+- Not parametric tests tend to be based on ranks
+- Example: how fast can students and professors carry out an experiment?
+
+Student
+
+`10 10 -- -- 20 21 27 -- -- -- -- 45`
+
+Professor
+
+`-- -- 15 16 -- -- -- 32 33 35 37 --`
+
+--- .class #id 
+
+## How does it work?
+
+- Not parametric tests tend to be based on ranks
+- Example: how fast can students and professors carry out an experiment?
+
+
+Student
+
+` 1  2 -- --  5  6  7 -- -- -- -- 12 = 33`
+
+Professor
+
+`-- --  3  4 -- -- --  8  9 10 11 -- = 45`
+
+  >- Note the original times have been replaced
+  >- So the distribution of the data is not important, just their order
+  >- Because we convert the data to ranks, the methods are naturally suited to ordinal data
+
+--- .class #id 
+
+## Mann-Whitney U-Test
+
+- Considered a non-parametric equivalent of the t-test
+- 2 groups
+- Ordinal or quantitative variable
+- Observations must be independent
+
+### Hypotheses
+
+- Do values in one group tend to be larger/smaller than the other group?
+- If the distributions are similar: are their medians different?
+
+--- &twocol
+
+## Mann-Whitney U-Test
+
+Example: oxygen saturation for 2 groups of patients (N= 100 per group)
+
+```{r, echo = FALSE}
+
+sample1 <- enframe(rbeta(100,100,1))
+sample1 <- sample1 %>% mutate(O2 = round((value * 100) - 1)) %>% add_column(group = 1)
+#write.csv(sample1, file="O2_group1.txt")
+
+sample2 <- enframe(rbeta(100,100,1))
+sample2 <- sample2 %>% mutate(O2 = round((value * 99) - 1)) %>% add_column(group = 2)
+#write.csv(sample1, file="O2_group2.txt")
+
+plot1 <- ggplot(sample1) +
+  geom_histogram(aes(x=O2), fill="wheat", col="black", position="identity", show.legend=TRUE, bins = 6) +
+  theme_bw(base_size = 20) +
+  xlab("fragment length (bp)")
+
+#plot1
+
+plot2 <- ggplot(sample2) +
+  geom_histogram(aes(x=O2), fill="lightgreen", col="black", position="identity", show.legend=TRUE, bins = 6) +
+  theme_bw(base_size = 20) +
+  xlab("fragment length (bp)")
+
+#plot2
+
+total <- rbind(sample1, sample2)
+
+utest <- wilcox.test(O2 ~ group, data=total)
+```
+  
+*** =left
+
+**Group1**
+
+```{r, echo=FALSE}
+print(sample1[3])
+```
+
+*** =right
+
+**Group2**
+
+```{r, echo=FALSE}
+print(sample2[3])
+```
+
+--- &twocol bg:white
+
+## Mann-Whitney U-Test
+
+Example: oxygen saturation for 2 groups of patients (N= 100 per group)
+
+*** =left
+
+**Group1**
+
+```{r, out.width = "100%", fig.width = 6, fig.height = 5, dpi = 600, fig.align = "left", echo = FALSE}
+plot1
+```
+
+*** =right
+
+**Group2**
+
+```{r, out.width = "100%", fig.width = 6, fig.height = 5, dpi = 600, fig.align = "left", echo = FALSE}
+plot2
+```
+
+--- .class #id
+
+## Mann-Whitney U-Test
+
+Example: oxygen saturation for 2 groups of patients (N= 100 per group)
+
+- Median Group 1 `r format(round(median(sample1$O2), 0))`% O2
+- Median Group 2 `r format(round(median(sample2$O2), 0))`% O2
+- Mann-Whitney U-test results: W = `r format(round(utest$statistic, 2))`, p-value = `r utest$p.value`
+
+--- &thankyou
+
+## Next time
+
+**What do you need to know?**
