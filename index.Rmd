@@ -41,9 +41,8 @@ strong {
 ## In this lecture...
 
   >- Selecting the appropriate test
+  >- Non-parametric tests
   >- Mann-Whitney U Test
-  >- Generating and presenting histograms
-  >- Computing and presenting statistical tests
 
 --- .class #id
 
